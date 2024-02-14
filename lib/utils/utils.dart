@@ -13,10 +13,11 @@ double getHeightInMeters(String value, String heightType) {
 }
 
 double getHeightInMetersFromFeetInches(String feet, String inches) {
-  double heightFeet = double.parse(feet);
-  double heightInches = double.parse(inches);
+  dynamic heightFeet = double.tryParse(feet);
+  dynamic heightInches = double.tryParse(inches);
   // Convert feet and inches to meters
-  double heightMeters = (heightFeet * 0.3048) + (heightInches * 0.0254);
+  double heightMeters =
+      ((heightFeet ?? 0.0) * 0.3048) + ((heightInches ?? 0.0) * 0.0254);
   return heightMeters;
 }
 
@@ -29,32 +30,37 @@ double getWeightInKg(String value, String weightType) {
   return weight;
 }
 
-void showSnackbar(String message, BuildContext context) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(
-        message,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 16.0,
-        ),
-      ),
-      backgroundColor: Colors.teal, // Change background color
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      dismissDirection: DismissDirection.horizontal,
-      duration: const Duration(seconds: 2), // Set duration
-      action: SnackBarAction(
-        label: 'OK',
-        textColor: Colors.white,
-        onPressed: () {
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        },
+void showSnackbar(
+    {required String message,
+    required BuildContext context,
+    bool isValidation = false}) {
+  final size = MediaQuery.sizeOf(context);
+  final SnackBar snackbar = SnackBar(
+    content: Text(
+      message,
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 16.0,
       ),
     ),
+    backgroundColor: Colors.teal, // Change background color
+    margin: EdgeInsets.only(
+        bottom: isValidation ? size.height * 0.72 : 20, left: 20, right: 20),
+    behavior: SnackBarBehavior.floating,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10.0),
+    ),
+    dismissDirection: DismissDirection.horizontal,
+    duration: const Duration(seconds: 2), // Set duration
+    action: SnackBarAction(
+      label: 'OK',
+      textColor: Colors.white,
+      onPressed: () {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      },
+    ),
   );
+  ScaffoldMessenger.of(context).showSnackBar(snackbar);
 }
 
 TextStyle customTextDecoration() {
@@ -94,56 +100,4 @@ InputDecoration customTextfieldDecoration() {
       ),
     ),
   );
-}
-
-validateWeight(String value, BuildContext context) {
-  if (value.isEmpty) {
-    return "weight cannot be empty";
-  }
-
-  if (double.tryParse(value) == null) {
-    return "enter a valid number";
-  }
-
-  if (double.tryParse(value)! <= 0) {
-    return "weight cannot be zero or negative";
-  }
-
-  return null;
-}
-
-validateHeight(String value, BuildContext context) {
-  if (value.isEmpty) {
-    return "height cannot be empty";
-  }
-
-  if (double.tryParse(value) == null) {
-    return "enter a valid number";
-  }
-
-  if (double.tryParse(value)! <= 0) {
-    return "height cannot be zero or negative";
-  }
-
-  return null;
-}
-
-validateAge(String value, BuildContext context) {
-  if (value.isEmpty) {
-    return "age cannot be empty";
-  }
-
-  if (double.tryParse(value) == null) {
-    return "enter a valid number";
-  }
-
-  if (double.tryParse(value)! <= 0) {
-    return "age cannot be zero or negative";
-  }
-
-  if (double.tryParse(value)! > 100) {
-    return "age cannot be greater than 100";
-  }
-
-  return null;
 }
