@@ -1,11 +1,14 @@
+import 'dart:convert';
 import 'package:bmi_calculator/bmi_calculator.dart';
 import 'package:calculate_bmi/screens/bmi_result_screen.dart';
+import 'package:calculate_bmi/screens/history_screen.dart';
 import 'package:calculate_bmi/screens/info_screen.dart';
 import 'package:calculate_bmi/utils/global_variables.dart';
 import 'package:calculate_bmi/widgets/bmi_gauge_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import '../models/measurement.dart';
 import '../utils/form_validators.dart';
 import '../widgets/bmi_card.dart';
 import '../widgets/gender_card.dart';
@@ -21,6 +24,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  // for history storage
+  late SharedPreferences _prefs;
+  List<MeasurementData> measurementsData = [];
+
   Gender? gender;
   final _formKey = GlobalKey<FormState>();
   String selectedHeightUnit = "m";
@@ -33,6 +40,34 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _ageController = TextEditingController();
   double? bmi;
   String? interpretation;
+  @override
+  void initState() {
+    super.initState();
+    _initSharedPreferences();
+  }
+
+  Future<void> _initSharedPreferences() async {
+    _prefs = await SharedPreferences.getInstance();
+    if (_prefs.getString('measurementsData') != null) {
+      _loadData();
+    } else {
+      setState(() {
+        measurementsData = [];
+      });
+    }
+  }
+
+  Future<void> _loadData() async {
+    _prefs = await SharedPreferences.getInstance();
+    final String? jsonString = _prefs.getString('measurementsData');
+    if (jsonString != null) {
+      setState(() {
+        measurementsData = (json.decode(jsonString) as List)
+            .map((item) => MeasurementData.fromMap(item))
+            .toList();
+      });
+    }
+  }
 
   void calculateBmi(double height, double weight, int age, String gender) {
     debugPrint(age.toString());
@@ -47,6 +82,29 @@ class _HomeScreenState extends State<HomeScreen> {
 
     bmi = double.tryParse(bmiCalculator.computeBMI().toStringAsFixed(2));
     interpretation = bmiCalculator.interpretBMI();
+  }
+
+  void storeData(double height, double weight, int age, String gender) async {
+    await _loadData();
+
+    final dateToStore = MeasurementData(
+        height: height,
+        weight: weight,
+        ageYears: age,
+        ageMonths: 0,
+        gender: gender,
+        bmi: bmi,
+        interpretation: interpretation,
+        date: DateTime.now(),
+        heightUnit: selectedHeightUnit,
+        weightUnit: selectedWeightUnit);
+
+    measurementsData.add(dateToStore);
+
+    await _prefs.setString('measurementsData',
+        json.encode(measurementsData.map((e) => e.toMap()).toList()));
+
+    setState(() {});
   }
 
   @override
@@ -80,6 +138,18 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               icon: const Icon(
                 Icons.info,
+              ),
+            ),
+            IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const HistoryScreen()),
+                );
+              },
+              icon: const Icon(
+                Icons.history,
               ),
             ),
             const Gap(10),
@@ -192,6 +262,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   _weightController.text.trim(), selectedWeightUnit);
               int age = double.tryParse(_ageController.text.trim())!.round();
               calculateBmi(height, weight, age, gender!.toString());
+              storeData(height, weight, age,
+                  gender!.toString()); //store data in local memory
+
               setState(() {
                 _isComputed = true;
               });
