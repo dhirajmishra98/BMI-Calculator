@@ -1,5 +1,5 @@
-import 'package:calculate_bmi/screens/home_screen.dart';
-import 'package:calculate_bmi/utils/global_variables.dart';
+import 'screens/home_screen.dart';
+import 'utils/global_variables.dart';
 import 'package:flutter/material.dart';
 
 void main() {

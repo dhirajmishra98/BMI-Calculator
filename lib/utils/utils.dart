@@ -1,5 +1,6 @@
-import 'package:calculate_bmi/utils/global_variables.dart';
 import 'package:flutter/material.dart';
+
+import 'global_variables.dart';
 
 double getHeightInMeters(String value, String heightType) {
   double height = double.tryParse(value)!;
