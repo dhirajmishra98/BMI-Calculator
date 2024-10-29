@@ -4,7 +4,6 @@ import 'package:bmi_calculator/bmi_calculator.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:upgrader/upgrader.dart';
 
 import '../models/measurement.dart';
 import '../utils/form_validators.dart';
@@ -134,7 +133,6 @@ void storeData(double height, double weight, int age, String gender) async {
     final size = MediaQuery.sizeOf(context);
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: UpgradeAlert(
         child: Scaffold(
           key: scaffoldKey,
           resizeToAvoidBottomInset: false,
@@ -296,7 +294,6 @@ void storeData(double height, double weight, int age, String gender) async {
           ),
           floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         ),
-      ),
     );
   }
 
