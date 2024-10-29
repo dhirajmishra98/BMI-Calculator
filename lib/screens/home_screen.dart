@@ -4,6 +4,7 @@ import 'package:bmi_calculator/bmi_calculator.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:upgrader/upgrader.dart';
 
 import '../models/measurement.dart';
 import '../utils/form_validators.dart';
@@ -133,166 +134,168 @@ void storeData(double height, double weight, int age, String gender) async {
     final size = MediaQuery.sizeOf(context);
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: Scaffold(
-        key: scaffoldKey,
-        resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          title: const Text("BMI Calculator"),
-          actions: [
-            IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const BMIInfoScreen()),
-                );
-              },
-              icon: const Icon(
-                Icons.info,
+      child: UpgradeAlert(
+        child: Scaffold(
+          key: scaffoldKey,
+          resizeToAvoidBottomInset: false,
+          appBar: AppBar(
+            title: const Text("BMI Calculator"),
+            actions: [
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const BMIInfoScreen()),
+                  );
+                },
+                icon: const Icon(
+                  Icons.info,
+                ),
               ),
-            ),
-            IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const HistoryScreen()),
-                );
-              },
-              icon: const Icon(
-                Icons.history,
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const HistoryScreen()),
+                  );
+                },
+                icon: const Icon(
+                  Icons.history,
+                ),
               ),
-            ),
-            const Gap(10),
-          ],
-        ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(15),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
+              const Gap(10),
+            ],
+          ),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(15),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Select Your Gender: ",
+                        style: customTextDecoration(),
+                      ),
+                      Expanded(
+                        child: GenderCard(
+                          text: "Male",
+                          iconData: Icons.man,
+                          isSelected: gender == Gender.male,
+                          onTap: () {
+                            setState(() {
+                              gender = Gender.male;
+                              _isComputed = false;
+                            });
+                          },
+                        ),
+                      ),
+                      Expanded(
+                        child: GenderCard(
+                          text: "Female",
+                          iconData: Icons.woman,
+                          isSelected: gender == Gender.female,
+                          onTap: () {
+                            setState(() {
+                              gender = Gender.female;
+                              _isComputed = false;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Gap(10),
+                  SizedBox(
+                    height: _isComputed ? size.height * 0.25 : size.height * 0.4,
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          inputHeight(context),
+                          const Gap(10),
+                          inputWeight(context),
+                          const Gap(10),
+                          inputAge(context),
+                          const Gap(10),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Visibility(
+                    visible: _isComputed && bmi != null && interpretation != null,
+                    child: SizedBox(
+                      height: size.height * 0.3,
+                      child: Expanded(
+                        child: BMIGaugeChart(
+                          bmiValue: bmi ?? 0.0,
+                          nutritionalStatus: interpretation ?? "not found!",
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (_isComputed) const BMIStatusCards(),
+                  if (!_isComputed) ...[
+                    Image.asset(
+                      "assets/bmi-waiting.png",
+                      height: size.height * 0.2,
+                      width: double.infinity,
+                      fit: BoxFit.fitHeight,
+                    ),
                     Text(
-                      "Select Your Gender: ",
+                      "Result will appear here",
                       style: customTextDecoration(),
                     ),
-                    Expanded(
-                      child: GenderCard(
-                        text: "Male",
-                        iconData: Icons.man,
-                        isSelected: gender == Gender.male,
-                        onTap: () {
-                          setState(() {
-                            gender = Gender.male;
-                            _isComputed = false;
-                          });
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      child: GenderCard(
-                        text: "Female",
-                        iconData: Icons.woman,
-                        isSelected: gender == Gender.female,
-                        onTap: () {
-                          setState(() {
-                            gender = Gender.female;
-                            _isComputed = false;
-                          });
-                        },
-                      ),
-                    ),
                   ],
-                ),
-                const Gap(10),
-                SizedBox(
-                  height: _isComputed ? size.height * 0.25 : size.height * 0.4,
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        inputHeight(context),
-                        const Gap(10),
-                        inputWeight(context),
-                        const Gap(10),
-                        inputAge(context),
-                        const Gap(10),
-                      ],
-                    ),
-                  ),
-                ),
-                Visibility(
-                  visible: _isComputed && bmi != null && interpretation != null,
-                  child: SizedBox(
-                    height: size.height * 0.3,
-                    child: Expanded(
-                      child: BMIGaugeChart(
-                        bmiValue: bmi ?? 0.0,
-                        nutritionalStatus: interpretation ?? "not found!",
-                      ),
-                    ),
-                  ),
-                ),
-                if (_isComputed) const BMIStatusCards(),
-                if (!_isComputed) ...[
-                  Image.asset(
-                    "assets/bmi-waiting.png",
-                    height: size.height * 0.2,
-                    width: double.infinity,
-                    fit: BoxFit.fitHeight,
-                  ),
-                  Text(
-                    "Result will appear here",
-                    style: customTextDecoration(),
-                  ),
+                  const Gap(50),
                 ],
-                const Gap(50),
-              ],
+              ),
             ),
           ),
-        ),
-        floatingActionButton: FloatingActionButton.extended(
-          backgroundColor: blueColor,
-          onPressed: () {
-            if (_isComputed) {
-              _showModalBottomSheet(context);
-            }
-            if (gender == null) {
-              WidgetsBinding.instance.addPostFrameCallback((_) =>
-                  showSnackbar(message: "Select gender", context: context));
-            }
-            if (_formKey.currentState!.validate() && gender != null) {
-              double height = 0;
-              debugPrint(_inchesController.text);
-              if (selectedHeightUnit == "feet & inches") {
-                height = getHeightInMetersFromFeetInches(
-                    _feetController.text.trim(), _inchesController.text.trim());
-              } else {
-                height = getHeightInMeters(
-                    _heightController.text.trim(), selectedHeightUnit);
+          floatingActionButton: FloatingActionButton.extended(
+            backgroundColor: blueColor,
+            onPressed: () {
+              if (_isComputed) {
+                _showModalBottomSheet(context);
               }
-
-              double weight = getWeightInKg(
-                  _weightController.text.trim(), selectedWeightUnit);
-              int age = double.tryParse(_ageController.text.trim())!.round();
-              calculateBmi(height, weight, age, gender!.toString());
-              storeData(height, weight, age,
-                  gender!.toString()); //store data in local memory
-
-              setState(() {
-                _isComputed = true;
-              });
-            }
-          },
-          label: Text(
-            _isComputed ? "Get Suggestion" : "Calculate",
-            style: const TextStyle(color: Colors.white),
+              if (gender == null) {
+                WidgetsBinding.instance.addPostFrameCallback((_) =>
+                    showSnackbar(message: "Select gender", context: context));
+              }
+              if (_formKey.currentState!.validate() && gender != null) {
+                double height = 0;
+                debugPrint(_inchesController.text);
+                if (selectedHeightUnit == "feet & inches") {
+                  height = getHeightInMetersFromFeetInches(
+                      _feetController.text.trim(), _inchesController.text.trim());
+                } else {
+                  height = getHeightInMeters(
+                      _heightController.text.trim(), selectedHeightUnit);
+                }
+        
+                double weight = getWeightInKg(
+                    _weightController.text.trim(), selectedWeightUnit);
+                int age = double.tryParse(_ageController.text.trim())!.round();
+                calculateBmi(height, weight, age, gender!.toString());
+                storeData(height, weight, age,
+                    gender!.toString()); //store data in local memory
+        
+                setState(() {
+                  _isComputed = true;
+                });
+              }
+            },
+            label: Text(
+              _isComputed ? "Get Suggestion" : "Calculate",
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
     );
   }
