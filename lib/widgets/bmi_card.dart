@@ -20,7 +20,7 @@ class BMIStatusCards extends StatelessWidget {
                 color: Colors.blue,
               ),
               BMICard(
-                range: 'Normal weight',
+                range: 'Normal',
                 status: '18.5–24.9',
                 color: Colors.green,
               ),

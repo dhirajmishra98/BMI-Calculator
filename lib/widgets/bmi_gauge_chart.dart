@@ -15,7 +15,7 @@ class BMIGaugeChart extends StatelessWidget {
     } else if (bmi >= 16.5 && bmi < 18.5) {
       return Colors.orange; // Underweight
     } else if (bmi >= 18.5 && bmi <= 24.9) {
-      return Colors.green; // Normal weight
+      return Colors.green; // Normal
     } else if (bmi >= 25.0 && bmi <= 29.9) {
       return Colors.yellow; // Overweight
     } else if (bmi >= 30.0 && bmi <= 34.9) {

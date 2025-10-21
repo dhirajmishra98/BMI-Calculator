@@ -80,8 +80,7 @@ class BMIInfoScreen extends StatelessWidget {
                     _buildBMIInterpretation('Underweight: ', '16 ≤ BMI < 16.9'),
                     _buildBMIInterpretation(
                         'Mildly underweight: ', '16.9 ≤ BMI < 18.4'),
-                    _buildBMIInterpretation(
-                        'Normal weight: ', '18.4 ≤ BMI < 24.9'),
+                    _buildBMIInterpretation('Normal: ', '18.4 ≤ BMI < 24.9'),
                     _buildBMIInterpretation(
                         'Overweight: ', '24.9 ≤ BMI < 29.9'),
                     _buildBMIInterpretation(
@@ -109,8 +108,8 @@ class BMIInfoScreen extends StatelessWidget {
                         'BMI less than the -3rd percentile'),
                     _buildBMIInterpretation('Wasted: ',
                         'BMI between the -3rd and -2nd percentiles'),
-                    _buildBMIInterpretation('Normal weight: ',
-                        'BMI between the -2nd and 0th percentiles'),
+                    _buildBMIInterpretation(
+                        'Normal: ', 'BMI between the -2nd and 0th percentiles'),
                     _buildBMIInterpretation('Possible risk of overweight: ',
                         'BMI between the 0th and 1st percentiles'),
                     _buildBMIInterpretation('Overweight: ',
