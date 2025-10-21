@@ -31,7 +31,10 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace "com.dhirucrafts.calculate_bmi"
     compileSdkVersion 34
-    ndkVersion flutter.ndkVersion
+    // Use an explicit NDK version that supports 16 KB page sizes on modern Android.
+    // If you don't have this NDK installed, install it via the SDK manager:
+    // sdkmanager --install "ndk;25.2.9519653"
+    ndkVersion '25.2.9519653'
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
